@@ -10,10 +10,10 @@
 # /studio -> Sanity host
 [[redirects]]
   from = "/studio"
-  to   = "https://psikosite.sanity.studio/"
+  to   = "https://aricisitesi.sanity.studio/"
   status = 301
 
 [[redirects]]
   from = "/studio/*"
-  to   = "https://psikosite.sanity.studio/:splat"
+  to   = "https://aricisitesi.sanity.studio/:splat"
   status = 200
