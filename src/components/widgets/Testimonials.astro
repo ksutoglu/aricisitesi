@@ -1,0 +1,53 @@
+---
+import { urlFor } from '~/lib/sanity';
+import Button from '~/components/ui/Button.astro';
+
+const { testimonials = [], title = "Kullanıcılarımız Ne Diyor?" } = Astro.props;
+const resolveImageSrc = (img: any, width?: number, height?: number) => {
+  if (!img) return '';
+  if (typeof img === 'string') return img;          // "https://..." gibi düz string
+  if (typeof img?.src === 'string') return img.src; // { src: "https://..." } nesnesi
+  try {
+    let b = urlFor(img);                            // Sanity image object
+    if (width) b = b.width(width);
+    if (height) b = b.height(height);
+    return b.url();
+  } catch {
+    return '';
+  }
+};
+
+---
+
+<section class="py-16 sm:py-20 bg-gray-50 dark:bg-slate-800">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="mb-12 text-center">
+      <h2 class="text-3xl font-bold tracking-tight sm:text-4xl font-heading">
+        {title}
+      </h2>
+    </div>
+    <div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+      {testimonials.map((testimonial) => (
+        <div class="rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-6 shadow-sm">
+          <p class="mt-4 text-gray-700 dark:text-slate-400">"{testimonial.quote}"</p>
+          <div class="mt-6 flex items-center">
+            {testimonial.image && (
+              <img
+                class="mr-4 h-12 w-12 rounded-full object-cover"
+                src={resolveImageSrc(testimonial.image, 100, 100)}
+                alt={testimonial.name}
+              />
+            )}
+            <div>
+              <p class="font-bold text-lg">{testimonial.name}</p>
+              {testimonial.title && <p class="text-sm text-primary">{testimonial.title}</p>}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+    <div class="mt-12 text-center">
+        <Button variant="primary" href="/danisan-yorumlari" text="Tüm Yorumları Gör" />
+    </div>
+  </div>
+</section>

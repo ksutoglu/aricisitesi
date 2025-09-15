@@ -1,0 +1,57 @@
+---
+import Layout from '~/layouts/PageLayout.astro';
+import { client, urlFor }from '~/lib/sanity';
+
+// Sanity'den tüm ürünleri ve bağlı oldukları kategori bilgilerini çekiyoruz
+const urunler = await client.fetch(`*[_type == "urun"]{
+  ...,
+  "kategori": kategori->{title, slug}
+} | order(_createdAt desc)`);
+
+const metadata = {
+  title: 'Tüm Ürünlerimiz',
+  description: 'Arı Platformu üzerinde bulunan tüm doğal ve sağlıklı arı ürünlerini keşfedin.',
+};
+---
+
+<Layout metadata={metadata}>
+  <section class="px-4 py-16 sm:py-20">
+    <div class="mx-auto max-w-6xl">
+      <div class="mb-10 text-center md:mb-16">
+        <h1 class="mb-4 text-4xl font-bold md:text-5xl">Tüm Ürünler</h1>
+        <p class="text-xl text-muted">Doğal lezzetleri ve arının mucizelerini keşfedin.</p>
+      </div>
+
+      <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        {
+          urunler.map((urun) => (
+            <div class="group overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md transition-shadow duration-300 hover:shadow-xl dark:border-slate-700 dark:bg-slate-800">
+              <a href={`/urunler/${urun.slug.current}`}>
+                {urun.mainImage && (
+                  <div class="relative h-64 w-full">
+                    <img
+                      class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      src={urlFor(urun.mainImage).width(400).height(400).url()}
+                      alt={urun.title}
+                    />
+                  </div>
+                )}
+                <div class="p-6">
+                  {urun.kategori && (
+                    <p class="text-sm font-semibold text-primary">{urun.kategori.title}</p>
+                  )}
+                  <h3 class="mt-2 text-xl font-bold group-hover:text-primary dark:text-white">
+                    {urun.title}
+                  </h3>
+                  <p class="mt-4 text-2xl font-extrabold text-gray-900 dark:text-slate-200">
+                    {urun.price} TL
+                  </p>
+                </div>
+              </a>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</Layout>

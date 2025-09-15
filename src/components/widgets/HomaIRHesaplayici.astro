@@ -1,0 +1,82 @@
+---
+// Bu bileşenin stil ayarları ve temel yapısı
+---
+<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-md dark:border-gray-700 dark:bg-gray-800">
+  <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+    <div>
+      <label for="kansekeri" class="mb-2 block text-lg font-medium text-gray-900 dark:text-white">Açlık Kan Şekeri (mg/dL)</label>
+      <input type="number" id="kansekeri" class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-3 text-lg text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white" placeholder="Örn: 90" required />
+    </div>
+    <div>
+      <label for="insulin" class="mb-2 block text-lg font-medium text-gray-900 dark:text-white">Açlık İnsülin (µU/mL)</label>
+      <input type="number" id="insulin" class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-3 text-lg text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white" placeholder="Örn: 10" required />
+    </div>
+  </div>
+  <button id="hesaplaBtn" class="mt-6 w-full rounded-lg bg-primary px-5 py-3 text-center text-lg font-medium text-white hover:bg-primary-dark focus:outline-none focus:ring-4 focus:ring-blue-300">
+    Hesapla
+  </button>
+
+  <div id="sonucAlani" class="mt-6 hidden rounded-lg p-4 text-center">
+    <h3 class="text-xl font-bold">HOMA-IR Sonucunuz:</h3>
+    <p id="homairSonuc" class="my-2 text-4xl font-extrabold"></p>
+    <p id="homairDurum" class="text-lg font-semibold"></p>
+  </div>
+
+  <div class="mt-6 rounded-md border-l-4 border-yellow-400 bg-yellow-50 p-4">
+    <div class="flex">
+      <div class="flex-shrink-0">
+        <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+        </svg>
+      </div>
+      <div class="ml-3">
+        <p class="text-sm text-yellow-700">
+          Bu hesaplama tıbbi bir teşhis değildir. Yalnızca bilgilendirme amaçlıdır. Lütfen sonuçları bir doktora danışınız.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const kansekeriInput = document.getElementById('kansekeri') as HTMLInputElement;
+  const insulinInput = document.getElementById('insulin') as HTMLInputElement;
+  const hesaplaBtn = document.getElementById('hesaplaBtn');
+  const sonucAlani = document.getElementById('sonucAlani');
+  const homairSonuc = document.getElementById('homairSonuc');
+  const homairDurum = document.getElementById('homairDurum');
+
+  if (hesaplaBtn && kansekeriInput && insulinInput && sonucAlani && homairSonuc && homairDurum) {
+    hesaplaBtn.addEventListener('click', () => {
+      const kansekeri = parseFloat(kansekeriInput.value);
+      const insulin = parseFloat(insulinInput.value);
+
+      if (isNaN(kansekeri) || isNaN(insulin) || kansekeri <= 0 || insulin <= 0) {
+        alert('Lütfen geçerli değerler giriniz.');
+        return;
+      }
+
+      // HOMA-IR Formülü: (Açlık Kan Şekeri * Açlık İnsülin) / 405
+      const homaIR = (kansekeri * insulin) / 405;
+
+      homairSonuc.textContent = homaIR.toFixed(2);
+
+      let durum = '';
+      let renkSinifi = '';
+      if (homaIR < 2.5) {
+        durum = 'Normal';
+        renkSinifi = 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+      } else if (homaIR < 5.0) {
+        durum = 'İnsülin Direnci Riski';
+        renkSinifi = 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
+      } else {
+        durum = 'Yüksek İnsülin Direnci';
+        renkSinifi = 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
+      }
+
+      homairDurum.textContent = durum;
+      sonucAlani.className = 'mt-6 rounded-lg p-4 text-center ' + renkSinifi;
+      sonucAlani.classList.remove('hidden');
+    });
+  }
+</script>

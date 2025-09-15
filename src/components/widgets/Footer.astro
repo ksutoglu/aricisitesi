@@ -1,0 +1,62 @@
+---
+import { Icon } from 'astro-icon/components';
+import { client } from '~/lib/sanity'; // Sanity bağlantımızı import ediyoruz
+
+// Sanity'den genel site ayarlarını çekiyoruz
+const settings = await client.fetch(`*[_type == "siteSettings"][0]`);
+const { siteTitle } = Astro.props;
+// Sanity'den gelen sosyal medya linklerini, bileşenin anladığı formata çeviriyoruz
+const socialLinks = settings.socialLinks?.map(link => ({
+  ariaLabel: link.platform,
+  href: link.url,
+  icon: `tabler:brand-${link.platform}`,
+}));
+
+const footNote = settings.footerText || `Tüm Hakları Saklıdır © ${new Date().getFullYear()}`;
+const links = settings.footerLinks || []; 
+// Footer'daki statik linkler (bunları da isterseniz Sanity'e taşıyabiliriz)
+
+---
+
+<footer class="relative border-t border-gray-200 dark:border-slate-800 not-prose">
+  <div class="dark:bg-dark absolute inset-0 pointer-events-none" aria-hidden="true"></div>
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="grid grid-cols-12 gap-4 gap-y-8 sm:gap-8 py-8 md:py-12">
+      <div class="col-span-12 lg:col-span-4">
+        <div class="mb-2">
+          <a class="inline-block font-bold text-xl" href="/">
+            {siteTitle || 'Site Adı'}
+          </a>
+        </div>
+        <div class="text-sm text-muted" set:html={footNote} />
+      </div>
+      {links.map(({ title, links }) => (
+        <div class="col-span-6 md:col-span-3 lg:col-span-2">
+          <div class="font-medium">{title}</div>
+          {links && links.length > 0 && (
+            <ul class="mt-4">
+              {links.map(({ text, href }) => (
+                <li class="mb-2">
+                  <a class="text-muted hover:text-gray-700 dark:text-gray-400 transition duration-150 ease-in-out" href={href}>{text}</a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      ))}
+    </div>
+    <div class="md:flex md:items-center md:justify-between py-6 md:py-8">
+      {socialLinks?.length > 0 && (
+        <ul class="flex mb-4 md:order-1 -ml-2 md:ml-4 md:mb-0">
+          {socialLinks.map(({ ariaLabel, href, icon }) => (
+            <li>
+              <a class="text-muted dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 p-2.5 rounded-lg" aria-label={ariaLabel} href={href}>
+                <Icon name={icon} class="w-5 h-5" />
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  </div>
+</footer>

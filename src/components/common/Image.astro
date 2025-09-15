@@ -1,0 +1,51 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+import { findImage } from '~/utils/images';
+import { getImagesOptimized, astroAssetsOptimizer, unpicOptimizer, isUnpicCompatible, type ImageProps } from '~/utils/images-optimization';
+
+type Props = ImageProps;
+
+const props = Astro.props;
+const { src, alt } = props;
+
+let isExternal = false;
+if (typeof src === 'string' && src.startsWith('http')) {
+  isExternal = true;
+}
+
+if (!alt) {
+  throw new Error("Image 'alt' attribute is required");
+}
+
+let imageAttributes: HTMLAttributes<'img'> = {};
+
+if (!isExternal) {
+    if (typeof props.width === 'string') {
+        props.width = parseInt(props.width);
+    }
+    if (typeof props.height === 'string') {
+        props.height = parseInt(props.height);
+    }
+    if (!props.loading) {
+        props.loading = 'lazy';
+    }
+    if (!props.decoding) {
+        props.decoding = 'async';
+    }
+
+    const _image = await findImage(src);
+    let optimizedImage;
+
+    if (typeof _image === 'string' && (_image.startsWith('http://') || _image.startsWith('https://')) && isUnpicCompatible(_image)) {
+        optimizedImage = await getImagesOptimized(_image, props, unpicOptimizer);
+    } else if (_image) {
+        optimizedImage = await getImagesOptimized(_image, props, astroAssetsOptimizer);
+    }
+    imageAttributes = optimizedImage?.attributes || {};
+}
+---
+{isExternal ? (
+  <img src={src} alt={alt} loading="lazy" decoding="async" class={Astro.props.class} />
+) : (
+  <img {...imageAttributes} />
+)}

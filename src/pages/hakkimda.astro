@@ -1,0 +1,36 @@
+---
+import Layout from '~/layouts/PageLayout.astro';
+import { client, urlFor } from '~/lib/sanity';
+import { PortableText } from 'astro-portabletext';
+
+// Sanity'den 'about' tipindeki tek dökümanı çekiyoruz
+const aboutData = await client.fetch(`*[_type == "about"][0]`);
+
+const metadata = {
+  title: aboutData.title || 'Ben Kimim?',
+};
+---
+
+<Layout metadata={metadata}>
+  <section class="px-6 sm:px-6 py-12 sm:py-16 lg:py-20 mx-auto max-w-3xl">
+    <header class="text-center mb-12">
+      <h1 class="text-4xl md:text-5xl font-bold leading-tighter tracking-tighter font-heading">
+        {aboutData.title}
+      </h1>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 items-start">
+      <div class="md:col-span-1">
+        <img 
+          src={urlFor(aboutData.profileImage).width(200).height(400).url()} 
+          alt={aboutData.title}
+          class="rounded-lg shadow-lg w-full h-auto object-cover"
+        />
+      </div>
+
+      <div class="md:col-span-2 prose prose-lg dark:prose-invert max-w-none">
+        <PortableText value={aboutData.body} />
+      </div>
+    </div>
+  </section>
+</Layout>

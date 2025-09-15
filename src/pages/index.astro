@@ -1,0 +1,135 @@
+---
+import Layout from '~/layouts/PageLayout.astro';
+
+import Hero from '~/components/widgets/Hero.astro';
+import Note from '~/components/widgets/Note.astro';
+import Features from '~/components/widgets/Features.astro';
+import Steps from '~/components/widgets/Steps.astro';
+import Content from '~/components/widgets/Content.astro';
+import BlogLatestPosts from '~/components/widgets/BlogLatestPosts.astro';
+import RecipeLatestPosts from '~/components/widgets/RecipeLatestPosts.astro';
+import FAQs from '~/components/widgets/FAQs.astro';
+import Stats from '~/components/widgets/Stats.astro';
+import CallToAction from '~/components/widgets/CallToAction.astro';
+import Testimonials from '~/components/widgets/Testimonials.astro'; 
+import UrunLatest from '~/components/widgets/UrunLatest.astro';
+import { client, urlForOrNull } from '~/lib/sanity'; // Sanity bağlantımızı import ediyoruz
+import ContentWithImage from '~/components/widgets/ContentWithImage.astro';
+
+const settings = await client.fetch(`*[_type == "siteSettings"][0]`);
+const hizmetler = await client.fetch(`*[_type == "hizmet"]`);
+const latestPosts = await client.fetch(`*[_type == "post"] | order(publishedAt desc)[0...3]`);
+const faqs = await client.fetch(`*[_type == "faq"]`);
+const latestRecipes = await client.fetch(`*[_type == "recipe"]{..., "category": category->{title, slug}} | order(_createdAt desc)[0...3]`);
+const latestUrunler = await client.fetch(`*[_type == "urun"] | order(_createdAt desc)[0...3]`);
+const latestTestimonials = await client.fetch(`*[_type == "testimonial"] | order(_createdAt desc)[0...3]`);
+const heroData = await client.fetch(`*[_type == "hero"][0]`);
+const pageSections = await client.fetch(`*[_type == "pageSection"] | order(_createdAt asc)`);
+
+const dynamicFaqsData = {
+  title: 'Sıkça Sorulan Sorular',
+  subtitle: 'Aklınıza takılan soruların cevaplarını burada bulabilirsiniz.',
+  items: faqs.map((faq) => ({
+    title: faq.question,
+    description: faq.answer,
+  })),
+};
+const dynamicFeaturesData = {
+  id: 'hizmetlerim',
+  title: 'Hizmetlerim',
+  subtitle: 'Size özel hazırladığım profesyonel beslenme danışmanlığı hizmetlerimle tanışın.',
+  items: hizmetler.map((hizmet) => ({
+    title: hizmet.title,
+    description: hizmet.kisaAciklama,
+    icon: hizmet.icon || 'tabler:heart-handshake',
+  })),
+};
+const metadata = {
+  title: '6NGenPetek - Doğal Arı Ürünleri Mağazası',
+  ignoreTitleTemplate: true,
+};
+---
+
+<Layout metadata={metadata}>
+  <!-- Hero Widget ******************* -->
+
+  <Hero
+  title={heroData?.title}
+  subtitle={heroData?.subtitle}
+  actions={heroData?.actions}
+  image={heroData?.mainImage ? { src: urlForOrNull(heroData.mainImage), alt: heroData?.title ?? '' } : undefined}
+/>
+
+    <!-- Note Widget (Artık Dinamik) -->
+  {settings?.philosophyNote && (
+    <Note 
+      title={settings.philosophyNote.title} 
+      description={settings.philosophyNote.description} 
+    />
+  )}
+
+
+  <!-- Features Widget *************** -->
+
+  <Features {...dynamicFeaturesData}  />
+
+    <!-- DİNAMİK BÖLÜMLER BURADA BAŞLIYOR -->
+  {
+    pageSections?.map((section) => {
+      if (section.contentWithImage) {
+        return <ContentWithImage data={section} />;
+      }
+      return null;
+    })
+  }
+  <!-- DİNAMİK BÖLÜMLER BİTİYOR -->
+
+  <!-- HighlightedPosts Widget ******* -->
+  <UrunLatest urunler={latestUrunler} />
+  <!-- LatestPosts Widget ************ -->
+
+  <BlogLatestPosts posts={latestPosts} />
+  
+
+  <RecipeLatestPosts recipes={latestRecipes} title="En Son Tarifler" />
+
+  <Testimonials testimonials={latestTestimonials} />
+
+  <!-- FAQs Widget ******************* -->
+  
+
+  <FAQs {...dynamicFaqsData} />
+
+  <!-- Stats Widget ****************** 
+
+  <Stats
+    stats={[
+      { title: 'Downloads', amount: '132K' },
+      { title: 'Stars', amount: '24.8K' },
+      { title: 'Forks', amount: '10.3K' },
+      { title: 'Users', amount: '48.4K' },
+    ]}
+  />-->
+
+  <!-- CallToAction Widget *********** -->
+
+  <CallToAction
+    actions={[
+        {
+            variant: 'primary',
+            text: 'WhatsApp\'tan Ulaşın',
+            href: 'https://wa.me/905074809985?text=Merhaba, sitenizden ulaşıyorum.', // Buraya kendi WhatsApp linkini koy
+            icon: 'tabler:brand-whatsapp',
+        },
+    ]}
+>
+    <Fragment slot="title">
+        Değişime Hazır mısınız?
+    </Fragment>
+
+    <Fragment slot="subtitle">
+        Sağlıklı bir geleceğe yatırım yapmak için ilk adımı bugün atın. <br class="hidden md:inline" /> Bana ulaşın ve size özel yol haritanızı birlikte çizelim.
+    </Fragment>
+  </CallToAction> 
+  
+</Layout>

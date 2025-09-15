@@ -1,0 +1,34 @@
+---
+import { PortableText } from 'astro-portabletext';
+import Layout from '~/layouts/PageLayout.astro';
+import { client, urlForOrNull } from '~/lib/sanity';
+
+// Bu fonksiyon, Sanity'deki tüm hizmetleri bulur ve her biri için bir sayfa oluşturulmasını sağlar
+export async function getStaticPaths() {
+  const slugs = await client.fetch(
+    '*[_type=="hizmet" && defined(slug.current)].slug.current'
+  )
+  return slugs.map((slug: string) => ({ params: { slug } }))
+}
+
+const { slug } = Astro.params
+const hizmet = await client.fetch(
+  '*[_type=="hizmet" && slug.current==$slug][0]',
+  { slug }
+)
+
+const imageUrl = urlForOrNull(hizmet?.anaGorsel, 1200, 630)
+const metadata = {
+  title: hizmet?.title ?? 'Hizmet',
+  description: hizmet?.kisaAciklama ?? '',
+  image: imageUrl ?? undefined, // yoksa hiç koyma
+};
+---
+
+<Layout metadata={metadata}>
+  <Fragment slot="title">{hizmet?.title}</Fragment>
+
+  <div class="prose prose-lg dark:prose-invert max-w-4xl mx-auto">
+    <PortableText value={hizmet?.detayliAciklama} />
+  </div>
+</Layout>

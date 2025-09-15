@@ -1,0 +1,76 @@
+---
+// Bu bileşenin stil ayarları ve temel yapısı
+---
+<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-md dark:border-gray-700 dark:bg-gray-800">
+  <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+    <div>
+      <label for="boy" class="mb-2 block text-lg font-medium text-gray-900 dark:text-white">Boyunuz (cm)</label>
+      <input type="number" id="boy" class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-3 text-lg text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400" placeholder="Örn: 175" required />
+    </div>
+    <div>
+      <label for="kilo" class="mb-2 block text-lg font-medium text-gray-900 dark:text-white">Kilonuz (kg)</label>
+      <input type="number" id="kilo" class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-3 text-lg text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400" placeholder="Örn: 70" required />
+    </div>
+  </div>
+  <button id="hesaplaBtn" class="mt-6 w-full rounded-lg bg-primary px-5 py-3 text-center text-lg font-medium text-white hover:bg-primary-dark focus:outline-none focus:ring-4 focus:ring-blue-300">
+    Hesapla
+  </button>
+
+  <div id="sonucAlani" class="mt-6 hidden rounded-lg p-4 text-center">
+    <h3 class="text-xl font-bold">Sonucunuz:</h3>
+    <p id="bkiSonuc" class="my-2 text-4xl font-extrabold"></p>
+    <p id="bkiDurum" class="text-lg font-semibold"></p>
+  </div>
+</div>
+
+<script>
+  // Gerekli HTML elemanlarını seçiyoruz
+  const boyInput = document.getElementById('boy') as HTMLInputElement;
+  const kiloInput = document.getElementById('kilo') as HTMLInputElement;
+  const hesaplaBtn = document.getElementById('hesaplaBtn');
+  const sonucAlani = document.getElementById('sonucAlani');
+  const bkiSonuc = document.getElementById('bkiSonuc');
+  const bkiDurum = document.getElementById('bkiDurum');
+
+  // Butonun ve diğer elemanların var olup olmadığını kontrol et
+  if (hesaplaBtn && boyInput && kiloInput && sonucAlani && bkiSonuc && bkiDurum) {
+    // Butona tıklanıldığında çalışacak fonksiyon
+    hesaplaBtn.addEventListener('click', () => {
+      const boy = parseFloat(boyInput.value);
+      const kilo = parseFloat(kiloInput.value);
+
+      // Değerler geçerli mi kontrol et
+      if (isNaN(boy) || isNaN(kilo) || boy <= 0 || kilo <= 0) {
+        alert('Lütfen geçerli boy ve kilo değerleri giriniz.');
+        return;
+      }
+
+      const boyMetre = boy / 100;
+      const bki = kilo / (boyMetre * boyMetre);
+
+      // Sonuçları ekrana yazdır
+      bkiSonuc.textContent = bki.toFixed(2); // Virgülden sonra 2 basamak
+
+      // Durumu ve rengi belirle
+      let durum = '';
+      let renkSinifi = '';
+      if (bki < 18.5) {
+        durum = 'Zayıf';
+        renkSinifi = 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
+      } else if (bki < 24.9) {
+        durum = 'Normal Kilolu';
+        renkSinifi = 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+      } else if (bki < 29.9) {
+        durum = 'Fazla Kilolu';
+        renkSinifi = 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
+      } else {
+        durum = 'Obez';
+        renkSinifi = 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
+      }
+
+      bkiDurum.textContent = durum;
+      sonucAlani.className = 'mt-6 rounded-lg p-4 text-center ' + renkSinifi; // Renk sınıfını güncelle
+      sonucAlani.classList.remove('hidden'); // Sonuç alanını görünür yap
+    });
+  }
+</script>

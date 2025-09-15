@@ -1,0 +1,23 @@
+backend:
+  name: git-gateway
+  branch: main # Çalıştığımız ana dal
+  repo: 'ksutoglu/diyetsiten' 
+
+media_folder: 'public/images/uploads' # Yüklenen resimlerin kaydedileceği yer
+public_folder: '/images/uploads' # Resimlerin sitede gösterileceği yol
+
+collections:
+  - name: 'blog' # Admin panelindeki koleksiyonun adı
+    label: 'Blog Yazıları ve Tarifler' # Arayüzde görünecek etiket
+    folder: 'src/data/post' # Yazıların kaydedileceği klasör
+    create: true # Yeni yazı eklemeye izin ver
+    slug: '{{year}}-{{month}}-{{day}}-{{slug}}' # Dosya adını otomatik oluştur
+    fields: # Her yazıda olacak alanlar
+      - { label: 'Başlık', name: 'title', widget: 'string' }
+      - { label: 'Yayınlanma Tarihi', name: 'publishDate', widget: 'datetime' }
+      - { label: 'Özet', name: 'excerpt', widget: 'text' }
+      - { label: 'Kategori', name: 'category', widget: 'select', options: ['Genel Sağlık', 'Doğru Bilinen Yanlışlar', 'Tarifler'] }
+      - { label: 'Etiketler', name: 'tags', widget: 'list', required: false }
+      - { label: 'Yazar', name: 'author', widget: 'hidden', default: 'Feyza Subaşı' }
+      - { label: 'Öne Çıkan Görsel Linki', name: 'image', widget: 'string', hint: 'Lütfen resmin tam internet adresini (URL) yapıştırın.' }
+      - { label: 'İçerik', name: 'body', widget: 'markdown' }

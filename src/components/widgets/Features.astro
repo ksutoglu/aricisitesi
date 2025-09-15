@@ -1,0 +1,38 @@
+---
+import WidgetWrapper from '~/components/ui/WidgetWrapper.astro';
+import Headline from '~/components/ui/Headline.astro';
+import { Icon } from 'astro-icon/components';
+import type { Features as Props } from '~/types';
+
+const {
+  title = await Astro.slots.render('title'),
+  subtitle = await Astro.slots.render('subtitle'),
+  tagline = await Astro.slots.render('tagline'),
+  items = [],
+  id,
+  isDark = false,
+  classes = {},
+  bg = await Astro.slots.render('bg'),
+} = Astro.props;
+---
+
+<WidgetWrapper id={id} isDark={isDark} containerClass={`max-w-5xl ${classes?.container ?? ''}`} bg={bg}>
+  <Headline title={title} subtitle={subtitle} tagline={tagline} classes={classes?.headline} />
+  
+  {/* YENİ: Hizmetleri yan yana sıralayacak olan grid yapısı */}
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+    {items.map(({ title: itemTitle, description, icon }) => (
+      <div class="flex flex-row items-start">
+        <div class="flex-shrink-0">
+          <div class="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-white">
+            {icon && <Icon name={icon} class="h-7 w-7" />}
+          </div>
+        </div>
+        <div class="ml-4">
+          {itemTitle && <h3 class="text-xl font-bold">{itemTitle}</h3>}
+          {description && <p class="mt-2 text-muted">{description}</p>}
+        </div>
+      </div> 
+    ))}
+  </div>
+</WidgetWrapper>

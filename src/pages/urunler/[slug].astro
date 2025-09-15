@@ -1,0 +1,59 @@
+---
+import Layout from '~/layouts/PageLayout.astro';
+import { client, urlForOrNull } from '~/lib/sanity';
+import { PortableText } from 'astro-portabletext';
+
+// Bu fonksiyon, Sanity'deki tüm ürünleri bulur ve her biri için bir sayfa oluşturur
+export async function getStaticPaths() {
+  const urunler = await client.fetch(`*[_type == "urun"]{ "slug": slug.current }`);
+  return urunler.map((urun) => ({
+    params: { slug: urun.slug },
+  }));
+}
+
+// Sayfanın URL'sinden slug'ı alıp Sanity'de ilgili ürünü buluyoruz
+const { slug } = Astro.params;
+const urun = await client.fetch(`*[_type == "urun" && slug.current == $slug][0]{
+    ...,
+    "kategori": kategori->{title}
+}`, { slug });
+
+
+const metadata = { 
+    title: urun?.title,
+    description: `Arı Platformu - ${urun?.title} ürünü hakkında detaylı bilgi ve fiyat.`,
+};
+const imgUrl = urlForOrNull(urun?.mainImage, 1200, 800);
+---
+
+<Layout metadata={metadata}>
+  <section class="px-6 sm:px-6 py-12 sm:py-16 lg:py-20 mx-auto max-w-4xl">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+      <div>
+        {imgUrl && (
+          <img
+            src={imgUrl}
+            alt={urun?.title ?? ''}
+            class="rounded-lg shadow-lg w-full h-auto object-cover"
+          />
+        )}
+      </div>
+
+      <div class="flex flex-col">
+        {urun.kategori && (
+            <p class="text-base font-semibold text-primary uppercase">{urun.kategori.title}</p>
+        )}
+        <h1 class="text-3xl md:text-4xl font-bold leading-tighter tracking-tighter mt-2 font-heading">
+          {urun?.title}
+        </h1>
+        <p class="text-4xl font-extrabold text-gray-900 dark:text-slate-200 mt-4">
+            {urun.price} TL
+        </p>
+
+        <div class="prose prose-lg dark:prose-invert max-w-none mt-8">
+          <PortableText value={urun?.description} />
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>

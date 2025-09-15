@@ -1,0 +1,42 @@
+---
+import Layout from '~/layouts/PageLayout.astro';
+import { client, urlForOrNull } from '~/lib/sanity';
+import { PortableText } from 'astro-portabletext';
+
+// Bu fonksiyon, Sanity'deki tüm danışmanlıkları bulur ve her biri için bir sayfa oluşturur
+export async function getStaticPaths() {
+  const slugs = await client.fetch(
+    '*[_type=="danismanlik" && defined(slug.current)].slug.current'
+  )
+  return slugs.map((slug: string) => ({ params: { slug } }))
+}
+
+const { slug } = Astro.params
+const danismanlik = await client.fetch(
+  '*[_type=="danismanlik" && slug.current==$slug][0]',
+  { slug }
+)
+
+const metadata = { title: danismanlik?.title ?? 'Danışmanlık' }
+const imgUrl = urlForOrNull(danismanlik?.mainImage, 1200, 600)
+---
+
+<Layout metadata={metadata}>
+  <section class="px-6 sm:px-6 py-12 sm:py-16 lg:py-20 mx-auto max-w-3xl">
+    <header>
+      {imgUrl && (
+        <img
+          src={imgUrl}
+          alt={danismanlik?.title ?? ''}
+          class="mb-8 rounded-lg shadow-lg w-full h-auto object-cover"
+        />
+      )}
+      <h1 class="text-4xl md:text-5xl font-bold leading-tighter tracking-tighter mb-4 font-heading">
+        {danismanlik?.title}
+      </h1>
+    </header>
+    <div class="prose prose-lg dark:prose-invert max-w-none mt-8">
+      <PortableText value={danismanlik?.content} />
+    </div>
+  </section>
+</Layout>

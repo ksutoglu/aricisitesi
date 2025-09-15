@@ -1,0 +1,72 @@
+---
+import { Icon } from 'astro-icon/components';
+import { client, urlForOrNull } from '~/lib/sanity';
+import Image from '~/components/common/Image.astro';
+
+// Bu bileşen Sanity'den gelen tüm bölüm verisini "data" olarak alacak
+const { data } = Astro.props;
+
+if (!data || !data.contentWithImage) {
+    return null; // Eğer bu bölüm için veri girilmemişse hiçbir şey gösterme
+}
+
+const {
+    mainTitle,
+    description,
+    featureList,
+    image,
+    imagePosition = 'right'
+} = data.contentWithImage;
+
+// Arka plan rengini belirle
+const bgColorClass = data.backgroundColor === 'light' 
+    ? 'bg-blue-50 dark:bg-slate-800' 
+    : 'bg-white dark:bg-slate-900';
+---
+<section class={bgColorClass} id={data.identifier?.current}>
+    <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+        
+        {mainTitle && (
+            <div class="mb-12 text-center">
+                <h2 class="text-4xl font-bold md:text-5xl">{mainTitle}</h2>
+            </div>
+        )}
+
+        <div class={`flex flex-col gap-12 md:flex-row ${imagePosition === 'left' ? 'md:flex-row-reverse' : ''}`}>
+            
+            <!-- Metin ve Maddeler Alanı -->
+            <div class="md:w-1/2">
+                {description && <p class="mb-8 text-lg text-muted">{description}</p>}
+                
+                <ul class="space-y-4">
+                    {featureList?.map(item => (
+                        <li class="flex">
+                            <div class="flex-shrink-0">
+                                <Icon name="tabler:check" class="h-7 w-7 text-primary" />
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-medium leading-6">{item.title}</h3>
+                                <p class="mt-1 text-muted">{item.description}</p>
+                            </div>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+
+            <!-- Resim Alanı -->
+            <div class="relative md:w-1/2">
+                {image && (
+                    <Image 
+                        src={urlForOrNull(image, 800, 600)}
+                        alt={mainTitle || 'İçerik görseli'}
+                        class="inset-0 h-full w-full rounded-lg bg-gray-500 object-cover shadow-lg"
+                        widths={[400, 768]}
+                        sizes="(max-width: 768px) 100vw, 432px"
+                        loading="lazy"
+                        decoding="async"
+                    />
+                )}
+            </div>
+        </div>
+    </div>
+</section>

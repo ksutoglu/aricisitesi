@@ -1,0 +1,37 @@
+---
+import Layout from '~/layouts/Layout.astro';
+import Header from '~/components/widgets/Header.astro';
+import Footer from '~/components/widgets/Footer.astro';
+import Announcement from '~/components/widgets/Announcement.astro';
+
+import { getHeaderData, footerData } from '~/navigation';
+import type { MetaData } from '~/types';
+import { client, urlForOrNull } from '~/lib/sanity';
+
+// YENİ: Genel site ayarlarını burada bir kez çekiyoruz
+const settings = await client.fetch(`*[_type == "siteSettings"][0]`);
+const headerData = await getHeaderData();
+
+export interface Props {
+  metadata?: MetaData;
+}
+
+const { metadata } = Astro.props;
+---
+
+<Layout metadata={metadata}>
+  <slot name="announcement">
+    <Announcement />
+  </slot>
+  <slot name="header">
+    {/* YENİ: Site adını Header'a gönderiyoruz */}
+    <Header {...headerData} siteTitle={settings?.title} />
+  </slot>
+  <main>
+    <slot />
+  </main>
+  <slot name="footer">
+    {/* YENİ: Site adını Footer'a gönderiyoruz */}
+    <Footer {...footerData} siteTitle={settings?.title} />
+  </slot>
+</Layout>
