@@ -34,6 +34,7 @@ export const getHeaderData = async (): Promise<HeaderProps> => {
       text: category.title,
       href: getPermalink(`/tarifler/kategori/${category.slug}`),
   }));
+  recipeCategoryLinks.unshift({ text: 'Tüm Tarifler', href: getPermalink('/tarifler') });
   const calculatorLinks = calculatorPages.map(page => ({
     text: page.pageTitle,
     href: getPermalink(`/hesaplamalar/${page.slug}`),
